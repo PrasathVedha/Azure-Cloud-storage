@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <h2>File Storage App</h2>
+  
+  <!-- Upload Form -->
+  <input type="file" id="fileInput">
+  <button onclick="uploadFile()">Upload</button>
+  
+  <!-- Download List -->
+  <div id="fileList"></div>
+
+  <script>
+    async function uploadFile() {
+      const file = document.getElementById('fileInput').files[0];
+      const response = await fetch(
+        "https://myfunctionapp.azurewebsites.net/api/upload", 
+        {
+          method: 'POST',
+          body: file,
+          headers: { 'x-ms-blob-name': file.name }
+        }
+      );
+      alert(response.ok ? "Uploaded!" : "Failed");
+      listFiles();
+    }
+
+    async function listFiles() {
+      const response = await fetch("https://myfunctionapp.azurewebsites.net/api/files");
+      const files = await response.json();
+      document.getElementById('fileList').innerHTML = files.map(f => 
+        `<a href="https://myfunctionapp.azurewebsites.net/api/download?file=${f}" download>${f}</a><br>`
+      ).join('');
+    }
+    
+    listFiles(); // Initial load
+  </script>
+</body>
+</html>
